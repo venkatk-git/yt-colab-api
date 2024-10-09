@@ -1,23 +1,31 @@
 {
-  "name": "yt-colab-api",
-  "version": "1.0.0",
-  "description": "\"# yt-colab-api\"",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/venkatk-git/yt-colab-api.git"
-  },
-  "keywords": [
-    "socket.io"
-  ],
-  "author": "Venkat",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/venkatk-git/yt-colab-api/issues"
-  },
-  "homepage": "https://github.com/venkatk-git/yt-colab-api#readme"
+    "name": "yt-colab-api",
+    "version": "1.0.0",
+    "description": "\"# yt-colab-api\"",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js",
+        "dev": "nodemon server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/venkatk-git/yt-colab-api.git"
+    },
+    "keywords": [
+        "socket.io"
+    ],
+    "author": "Venkat",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/venkatk-git/yt-colab-api/issues"
+    },
+    "homepage": "https://github.com/venkatk-git/yt-colab-api#readme",
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "express": "^4.21.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.7"
+    }
 }
