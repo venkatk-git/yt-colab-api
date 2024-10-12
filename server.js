@@ -1,63 +1,31 @@
 const express = require("express");
 const app = require("./app");
 const http = require("http");
+const cors = require("cors");
 
 const httpServer = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(httpServer);
+app.use(express.urlencoded({ extended: true }));
 
 const uuidv4 = require("uuid").v4;
 
 const { PORT } = require("./config/variables");
-const { url } = require("inspector");
 
 app.use(express.json());
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"],
+        credentials: true,
+    })
+);
 
-const connections = {};
-const users = {};
-const rooms = {};
+const roomRoutes = require("./routes/room.routes");
+app.use("/", roomRoutes);
 
-function createRoom() {
-    return uuidv4();
-}
-
-app.post("/create-room/:admin", (req, res) => {
-    const { admin } = req.params;
-    const roomId = createRoom();
-
-    rooms[roomId] = {
-        admin,
-        members: [],
-    };
-
-    return res.status(201).json({
-        roomId,
-        room: rooms[roomId],
-    });
-});
-
-app.get("/join-room/:roomId/:user", (req, res) => {
-    const { roomId, user } = req.params;
-
-    rooms[roomId] = {
-        ...rooms[roomId],
-        members: [...rooms[roomId].members, user],
-    };
-
-    return res.status(200).json({
-        roomId,
-        room: rooms[roomId],
-    });
-});
-
-io.on("connection", (socket) => {
-    const roomId = createRoom();
-
-    socket.join(roomId);
-    connections[uuid] = socket;
-
-    console.log(connections);
-});
+const socketRoutes = require("./routes/socket.routes")(io);
+app.use("/", socketRoutes);
 
 httpServer.listen(PORT, () => {
     console.log(`Server running on PORT : ${PORT}`);
