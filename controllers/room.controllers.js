@@ -1,18 +1,28 @@
+const db = require("../services/firebase");
+const roomRef = db.ref("rooms");
+const connectionsRef = db.ref("connections");
+
 const uuidv4 = require("uuid").v4;
 
 function createRoom(req, res) {
     const { admin, vedio } = req.body;
-    const user = uuidv4();
-    const roomId = uuidv4();
 
     return res.status(201).json({
         roomId,
         admin: {
-            id: user,
+            id: adminId,
             vedio,
             name: admin,
         },
     });
+}
+
+function disconnectRoom(roomId) {
+    if (!roomRef.child(roomId)) {
+        return null;
+    }
+
+    roomRef.child(roomId).remove();
 }
 
 module.exports = { createRoom };
