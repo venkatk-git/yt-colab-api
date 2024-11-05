@@ -2,7 +2,7 @@ const db = require("../services/firebase");
 const roomRef = db.ref("rooms");
 const connectionsRef = db.ref("connections");
 
-function createRoomHandler(roomId, adminName, vedio, socket) {
+function createRoomHandler(roomId, adminName, video, socket) {
     const adminId = socket.id;
 
     if (!adminName) {
@@ -18,7 +18,7 @@ function createRoomHandler(roomId, adminName, vedio, socket) {
     roomRef.child(roomId).set({
         admin: adminId,
         members: [adminId],
-        vedio: vedio,
+        video: video,
         status: "active",
     });
 
@@ -28,9 +28,13 @@ function createRoomHandler(roomId, adminName, vedio, socket) {
     socket.to(roomId).emit("user-joined", { adminName });
 }
 
-function joinRoomHandler(roomId, userName, socket) {
+async function joinRoomHandler(roomId, userName, socket) {
     const userId = socket.id;
 
+    // Get the room reference and retrieve the video ID from Firebase
+    const roomRef = db.ref(`rooms/${roomId}`);
+
+    // Add user to room members in Firebase
     const userRef = db.ref(`rooms/${roomId}/members`);
     userRef.push(userId);
 
@@ -39,9 +43,26 @@ function joinRoomHandler(roomId, userName, socket) {
         roomId,
     });
 
-    console.log(`${userId} connected`);
+    console.log(`${userId} connected as ${userName} in room ${roomId}`);
 
+    // Join the socket room
     socket.join(roomId);
+
+    roomRef.child(roomId).once("value", (snapshot) => {
+        const roomData = snapshot.val();
+
+        console.log(roomData);
+
+        if (roomData) {
+            // Emit room data to the joining user, including videoId
+            socket.emit("room:data", {
+                videoId: roomData.videoId,
+                members: roomData.members,
+            });
+        }
+    });
+
+    // Notify other users in the room that a new user has joined
     socket.to(roomId).emit("user-joined", { userName });
 }
 

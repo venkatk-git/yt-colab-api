@@ -6,8 +6,8 @@ const {
 
 module.exports = (io) => {
     io.on("connection", (socket) => {
-        socket.on("room:create", ({ roomId, adminName, vedio }) => {
-            createRoomHandler(roomId, adminName, vedio, socket);
+        socket.on("room:create", ({ roomId, adminName, video }) => {
+            createRoomHandler(roomId, adminName, video, socket);
         });
 
         socket.on("room:join", ({ roomId, user }) => {

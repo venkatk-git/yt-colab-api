@@ -4,10 +4,10 @@ const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer);
 const { PORT, CLIENT_ORIGIN } = require("./config/variables");
+const httpServer = http.createServer(app);
 
+// Configure CORS for Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -17,6 +17,15 @@ app.use(
         credentials: true,
     })
 );
+
+// Configure CORS for Socket.IO
+const io = new Server(httpServer, {
+    cors: {
+        origin: CLIENT_ORIGIN,
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
+});
 
 const roomRoutes = require("./routes/room.routes");
 app.use("/", roomRoutes);
