@@ -15,10 +15,12 @@ function createRoomHandler(roomId, adminName, video, socket) {
         roomId,
     });
 
+    console.log("Video Id: " + video);
+
     roomRef.child(roomId).set({
         admin: adminId,
         members: [adminId],
-        video: video,
+        video,
         status: "active",
     });
 
@@ -31,11 +33,11 @@ function createRoomHandler(roomId, adminName, video, socket) {
 async function joinRoomHandler(roomId, userName, socket) {
     const userId = socket.id;
 
-    // Get the room reference and retrieve the video ID from Firebase
-    const roomRef = db.ref(`rooms/${roomId}`);
+    // Access room reference without redefining roomRef
+    const specificRoomRef = db.ref(`rooms/${roomId}`);
 
     // Add user to room members in Firebase
-    const userRef = db.ref(`rooms/${roomId}/members`);
+    const userRef = specificRoomRef.child("members");
     userRef.push(userId);
 
     connectionsRef.child(userId).set({
@@ -43,22 +45,22 @@ async function joinRoomHandler(roomId, userName, socket) {
         roomId,
     });
 
-    console.log(`${userId} connected as ${userName} in room ${roomId}`);
-
     // Join the socket room
     socket.join(roomId);
 
-    roomRef.child(roomId).once("value", (snapshot) => {
+    specificRoomRef.once("value", (snapshot) => {
         const roomData = snapshot.val();
 
-        console.log(roomData);
-
         if (roomData) {
+            console.log(roomData); // Check data format
+
             // Emit room data to the joining user, including videoId
             socket.emit("room:data", {
-                videoId: roomData.videoId,
+                videoId: roomData.video, // Ensure 'video' is the correct key used in createRoomHandler
                 members: roomData.members,
             });
+        } else {
+            console.error(`Room data for roomId ${roomId} not found.`);
         }
     });
 
@@ -93,7 +95,15 @@ function disconnectHandler(socket) {
                 roomRef.child(roomId).once("value", (roomSnapshot) => {
                     if (roomSnapshot.exists()) {
                         const roomData = roomSnapshot.val();
-                        const members = roomData.members || [];
+                        let members = roomData.members || [];
+
+                        // Check if `members` is an object and convert to an array
+                        if (
+                            typeof members === "object" &&
+                            !Array.isArray(members)
+                        ) {
+                            members = Object.values(members);
+                        }
 
                         // Remove the user from the members list
                         const updatedMembers = members.filter(
