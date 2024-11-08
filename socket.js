@@ -14,6 +14,18 @@ module.exports = (io) => {
             joinRoomHandler(roomId, user, socket);
         });
 
+        socket.on("play", ({ roomId, currentTime }) => {
+            socket.to(roomId).emit("play", { currentTime });
+        });
+
+        socket.on("pause", ({ roomId, currentTime }) => {
+            socket.to(roomId).emit("pause", { currentTime });
+        });
+
+        socket.on("seek", ({ roomId, currentTime }) => {
+            socket.to(roomId).emit("seek", { currentTime });
+        });
+
         socket.on("disconnect", () => {
             disconnectHandler(socket);
         });
