@@ -15,6 +15,7 @@ module.exports = (io) => {
         });
 
         socket.on("play", ({ roomId, currentTime }) => {
+            console.log(currentTime);
             socket.to(roomId).emit("play", { currentTime });
         });
 
@@ -22,8 +23,8 @@ module.exports = (io) => {
             socket.to(roomId).emit("pause", { currentTime });
         });
 
-        socket.on("seek", ({ roomId, currentTime }) => {
-            socket.to(roomId).emit("seek", { currentTime });
+        socket.on("seek", ({ roomId, time }) => {
+            socket.to(roomId).emit("seek", { time });
         });
 
         socket.on("disconnect", () => {
